@@ -6,8 +6,8 @@ payload2014::payload2014()
     // init pins 
     
     // cameras
-    pinMode(camera1_trig, OUTPUT)
-    pinMode(camera2_trig, OUTPUT)
+    pinMode(camera1_trig, OUTPUT);
+    pinMode(camera2_trig, OUTPUT);
     
     // actuator 1 bottom
     pinMode(actuator1_dir, OUTPUT);
