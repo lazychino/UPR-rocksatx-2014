@@ -6,8 +6,8 @@ payload2014::payload2014()
     // init pins 
     
     // cameras
-    pinMode(camera1_trig, OUTPUT)
-    pinMode(camera2_trig, OUTPUT)
+    pinMode(camera1_trig, OUTPUT);
+    pinMode(camera2_trig, OUTPUT);
     
     // actuator 1 bottom
     pinMode(actuator1_dir, OUTPUT);
@@ -47,10 +47,8 @@ void  payload2014::moveRail(bool dir)
         if(steps1 > 0)
         {
             digitalWrite(actuator1_stp, HIGH);
-            digitalWrite(actuator2_stp, HIGH);
             delayMicroseconds(2);
             digitalWrite(actuator1_stp, LOW);
-            digitalWrite(actuator2_stp, LOW);
             delayMicroseconds(period1);
             
             
@@ -102,4 +100,13 @@ void  payload2014::openRail()
 void  payload2014::closeRail()
 {
     moveRail(0);
+}
+
+void payload2014::triggerCameras()
+{
+    digitalWrite(camera1_trig, HIGH);
+    digitalWrite(camera2_trig, HIGH);
+    delay(250);
+    digitalWrite(camera1_trig, LOW);
+    digitalWrite(camera2_trig, LOW);
 }

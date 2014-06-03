@@ -56,6 +56,7 @@ public:
     void collectData();
     void openRail();
     void closeRail();
+    void triggerCameras();
 };
 
 #endif
