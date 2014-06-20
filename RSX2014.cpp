@@ -7,18 +7,28 @@ payload2014::payload2014()
     
     // cameras
     pinMode(camera1_trig, OUTPUT);
+    digitalWrite(camera1_trig, LOW);
     pinMode(camera2_trig, OUTPUT);
+    digitalWrite(camera2_trig, LOW);
     
     // actuator 1 bottom
     pinMode(actuator1_dir, OUTPUT);
+    digitalWrite(actuator1_dir, LOW);
+    
     pinMode(actuator1_stp, OUTPUT);
+    digitalWrite(actuator1_stp, LOW);
+    
     pinMode(actuator1_ena, OUTPUT);
     digitalWrite(actuator1_ena, HIGH);
     pinMode(actuator1_limit, INPUT_PULLUP);
 
     // actuator 2 top
     pinMode(actuator2_dir, OUTPUT);
+    digitalWrite(actuator2_dir, LOW);
+    
     pinMode(actuator2_stp, OUTPUT);
+    digitalWrite(actuator2_stp, LOW);
+    
     pinMode(actuator2_ena, OUTPUT);
     digitalWrite(actuator2_ena, HIGH);
 }
