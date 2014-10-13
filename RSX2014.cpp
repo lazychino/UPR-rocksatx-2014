@@ -3,21 +3,21 @@
 
 payload2014::payload2014()
 {
-    // init pins 
-    
+    // init pins
+
     // cameras
     pinMode(camera1_trig, OUTPUT);
     digitalWrite(camera1_trig, LOW);
     pinMode(camera2_trig, OUTPUT);
     digitalWrite(camera2_trig, LOW);
-    
+
     // actuator 1 bottom
     pinMode(actuator1_dir, OUTPUT);
     digitalWrite(actuator1_dir, LOW);
-    
+
     pinMode(actuator1_stp, OUTPUT);
     digitalWrite(actuator1_stp, LOW);
-    
+
     pinMode(actuator1_ena, OUTPUT);
     digitalWrite(actuator1_ena, HIGH);
     pinMode(actuator1_limit, INPUT_PULLUP);
@@ -25,78 +25,77 @@ payload2014::payload2014()
     // actuator 2 top
     pinMode(actuator2_dir, OUTPUT);
     digitalWrite(actuator2_dir, LOW);
-    
+
     pinMode(actuator2_stp, OUTPUT);
     digitalWrite(actuator2_stp, LOW);
-    
+
     pinMode(actuator2_ena, OUTPUT);
     digitalWrite(actuator2_ena, HIGH);
+
+    // initialize the SD card at SPI_HALF_SPEED to avoid bus errors with
+    // breadboards.  use SPI_FULL_SPEED for better performance.
+    if (!sd.begin(chipSelect, SPI_FULL_SPEED)) Serial.println("ERROR: could not init SD card");
 }
 
-inline void  payload2014::collectData()
+void payload2014::collectData()
 {
-    //read analog and save to SD
+    // create folder if not exists
+    sd.mkdir("LOGS");
+
+    // create or open a file for append
+    ofstream sdlog("LOGS/DATA.TXT", ios::out | ios::app);
+
+    sdlog << "started logging" << endl;
+
+    unsigned long interval = 0;
+    unsigned long minute = millis()+60000;
+    while(analogRead(PowerOff) < 2000)
+    {
+        sdlog << micros()  << ","
+              << analogRead(A5) << ","
+              << analogRead(A6) << ","
+              << analogRead(A7) << endl;
+    }
+
+    sdlog << "ended logging" << endl;
+
+    sdlog.close();
+
+    if (!sdlog) Serial.println("append failed");
 }
 
 void  payload2014::moveRail(bool dir)
 {
-    unsigned long steps1 = (3.393/travelPerStep)*16;
-    unsigned long steps2 = (2.5/travelPerStep)*16;
-    
-    digitalWrite(actuator1_dir, dir);  // set direction outward
-    digitalWrite(actuator2_dir, dir);  
+    unsigned long steps = (railTravel/travelPerStep)*16;
 
-    int period1 = 200;                        // set initial speed
-    int period2 = 200;                        
-    
+    digitalWrite(actuator1_dir, dir);  // set direction outward
+    digitalWrite(actuator2_dir, dir);
+
+    int period = maxPeriod;                 // set initial speed
+
     digitalWrite(actuator1_ena, LOW);       // enable board
-    digitalWrite(actuator2_ena, LOW);       
-    
-    while(steps1 > 0 || steps2 > 0)
+    digitalWrite(actuator2_ena, LOW);
+
+    while(steps > 0)
     {
-        if(steps1 > 0)
+        digitalWrite(actuator1_stp, HIGH);
+        digitalWrite(actuator2_stp, HIGH);
+        delayMicroseconds(2);
+        digitalWrite(actuator1_stp, LOW);
+        digitalWrite(actuator2_stp, LOW);
+        delayMicroseconds(period);
+
+        if( steps >= 3200)
         {
-            digitalWrite(actuator1_stp, HIGH);
-            delayMicroseconds(2);
-            digitalWrite(actuator1_stp, LOW);
-            delayMicroseconds(period1);
-            
-            
-            
-            if( steps1 >= 3200)
-            { 
-                if(period1 > 44 && steps1%400 == 0)       // on the first revolutions
-                    period1--;           // the period of the pulse is decrease to accelerate
-            }
-            else if( steps1 < 3200)
-            { 
-                if( steps1%20 == 0)      // on the last revolution period
-                    period1++;               // increase to decelerate
-            }
-            else{}
-            steps1--;
+            if(period > minPeriod && steps % 400 == 0)       // on the first revolutions
+                period--;           // the period of the pulse is decrease to accelerate
         }
-        
-        if(steps2 > 0)
+        else if( steps < 200)
         {
-            digitalWrite(actuator2_stp, HIGH);
-            delayMicroseconds(2);
-            digitalWrite(actuator2_stp, LOW);
-            delayMicroseconds(period2);
-            
-            if(steps2 >= 3200)
-            { 
-                if(period2 > 44 && steps2%400 == 0)       // on the first revolutions
-                    period2--;           // the period of the pulse is decrease to accelerate
-            }
-            else if(steps2 < 3200)
-            { 
-                if( steps2%20 == 0)      // on the last revolution period
-                    period2++;               // increase to decelerate
-            }
-            else{}
-            steps2--;
+            period++;               // increase to decelerate
         }
+        else{}
+        steps--;
     }
     digitalWrite(actuator1_ena, HIGH);         // disable board
     digitalWrite(actuator2_ena, HIGH);         // disable board

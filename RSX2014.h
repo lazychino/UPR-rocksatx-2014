@@ -1,21 +1,22 @@
 /*
- * Software library to control UPR rocksat-x 2014 payload 
- * 
+ * Software library to control UPR rocksat-x 2014 payload
+ *
  * Author: Pedro A. Melendez <lazy.chino@gmail.com>
- * 
+ *
  */
- 
+
 #ifndef RSX2014_H
 #define RSX2014_H
 
 #include <Arduino.h>
+#include <SdFat.h>
 
 // --------------- Arduino pins definitions ------------------
 
 // Stepper driver 1
 #define actuator1_dir 35
 #define actuator1_ena 31
-#define actuator1_stp 33 
+#define actuator1_stp 33
 #define actuator1_limit 7
 
 // Stepper driver 2
@@ -41,15 +42,22 @@
 #define camera2_trig 25
 
 // constants
-//#define maxStepperSpeed 1400 // steps/s
-//#define minStepperSpeed 150 // steps/s
+#define maxStepperSpeed 0.27 // inch/s
+#define minStepperSpeed 150 // inch/s
 #define travelPerStep 0.00015625 // @ full stepping
+#define railTravel 3.93
+#define maxPeriod 170
+#define minPeriod 44
 
-class payload2014 
+//sdcard
+#define chipSelect 10
+
+class payload2014
 {
 private:
+    SdFat sd;
     void moveRail(bool);
-    
+
 public:
     payload2014();
     ~payload2014(){}
